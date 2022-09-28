@@ -7,7 +7,6 @@ import pandas as pd
 # fmt:off
 path = "D:\\DigitalImageProcessing\\img\\classify\\train\\"
 kind_list = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
-kind_id = {'airplane': 0, 'automobile': 1, 'bird':2, 'cat':3, 'deer':4,'dog':5,'frog':6,'horse':7,'ship':8,'truck':9}
 # fmt:on
 def get_image_similarity(image1, image2):
     """基于欧氏距离的图片相似度"""
@@ -36,7 +35,7 @@ def detect_image_kind(test_image):
             image_similarity2 = get_image_similarity_by_hist(test_image, train_image)
             similarity_list[n, 0] = image_similarity1
             similarity_list[n, 1] = image_similarity2
-            similarity_list[n, 2] = kind_id[kind]
+            similarity_list[n, 2] = kind_list.index(kind)
             n = n + 1
     gray_similarity_list = np.array(sorted(similarity_list, key=lambda x: x[0]))  # 升序排序
     hist_similarity_list = np.array(sorted(similarity_list, key=lambda x: x[1]))  # 升序排序
@@ -51,13 +50,10 @@ def detect_image_kind(test_image):
             hist_similarity_list[:, 1]
         )  # 归一化直方图相似度
         if normalized1 < normalized2:
-            kind = list(kind_id.keys())[
-                list(kind_id.values()).index(gray_similarity_list[i][2])
-            ]  # 由值找键
+            kind = kind_list[int(gray_similarity_list[i][2])]
         else:
-            kind = list(kind_id.keys())[
-                list(kind_id.values()).index(hist_similarity_list[i][2])
-            ]  # 由值找键
+            kind = kind_list[int(hist_similarity_list[i][2])]
+
         # kind = list(kind_id.keys())[
         #         list(kind_id.values()).index(hist_similarity_list[i][2])
         #     ]  # 由值找键
@@ -91,16 +87,5 @@ if __name__ == "__main__":
             + "  测试结果："
             + detect_kind
         )
-        with open("detect_result_by_gray_and_hist_15.txt", "a+", encoding="utf8") as o:
-            o.write(
-                "测试"
-                + str(correct_num + error_num)
-                + "  测试类型：["
-                + test_kind
-                + "]  测试图片"
-                + filename
-                + "  测试结果："
-                + detect_kind
-                + "\n")
     correct_rate = correct_num / (correct_num + error_num)
     print("\n共测试" + str(N) + "张图片，识别正确率：" + str(correct_rate * 100) + "%\n")
